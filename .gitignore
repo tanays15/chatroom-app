@@ -1,3 +1,4 @@
 *.o
 src/*
 !src/*.c
+!src/*.h
