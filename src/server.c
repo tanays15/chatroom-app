@@ -3,6 +3,14 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include "server.h"
+
+
 int main() {
 
 }
+
+
+int createSocket() {
+    return -1;
+}
+
