@@ -6,11 +6,8 @@
 
 
 int main() {
+    int status;
+    struct addrinfo hints;
 
-}
-
-
-int createSocket() {
-    return -1;
 }
 
