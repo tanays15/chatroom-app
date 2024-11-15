@@ -6,7 +6,6 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
-#include "server.h"
 
 #define BACKLOG 10
 #define MAX_BUFF_SIZE 32
@@ -39,6 +38,7 @@ int main(int argc, char *argv[]) {
             continue;
         }
         if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) {
+            close(sockfd);
             perror("setsockopt");
             exit(1);
         }
@@ -50,11 +50,13 @@ int main(int argc, char *argv[]) {
     }
     freeaddrinfo(servinfo);
     if (p == NULL) {
+        close(sockfd);
         fprintf(stderr, "server: failed to bind\n");
         exit(1);
     }
 
     if (listen(sockfd, BACKLOG) == -1) {
+        close(sockfd);
         perror("listen");
         exit(1);
     } else {
@@ -79,6 +81,8 @@ int main(int argc, char *argv[]) {
         if (send(new_fd, msg, len_msg, 0) == -1) {
             perror("send");
         }
+        free(msg);
+        msg = NULL;
         close(new_fd);
     }
     return 0;
