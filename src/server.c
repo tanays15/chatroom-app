@@ -9,7 +9,7 @@
 #include "server.h"
 
 #define BACKLOG 10
-
+#define MAX_BUFF_SIZE 32
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -66,7 +66,15 @@ int main(int argc, char *argv[]) {
             perror("accept");
             continue;
         }
-        char *msg = "Hello, World!\n";
+        int recv_len;
+        char buffer[MAX_BUFF_SIZE] = {0};
+        if ((recv_len = recv(new_fd, buffer, MAX_BUFF_SIZE, 0)) == -1) {
+            perror("recv");
+            close(new_fd);
+            continue;
+        }
+        buffer[recv_len] = '\0';
+        char *msg = strdup(buffer);
         int len_msg = strlen(msg);
         if (send(new_fd, msg, len_msg, 0) == -1) {
             perror("send");
