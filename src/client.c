@@ -52,14 +52,16 @@ int main(int argc, char *argv[]) {
     while (1) {
         fscanf(stdin, "%31s", buffer); // 31 to ensure that buffer is NUL termianted
         if ((bytes_read = send(sockfd, buffer, strlen(buffer), 0)) < 0) {
-            perror("send:");
+            perror("send");
         }
         if (strcmp(buffer, "exit") == 0) {
             break;
         }
-        if ((bytes_read = recv(sockfd, buffer, MAX_BUFF_SIZE, 0)) < 0) {
-            perror("recv:");
+        if ((bytes_read = recv(sockfd, buffer, MAX_BUFF_SIZE - 1, 0)) == -1) {
+            perror("recv");
+            exit(1);
         }
+        buffer[bytes_read] = '\0';
         fprintf(stdout, "%s\n", buffer);
     }
     close(sockfd);

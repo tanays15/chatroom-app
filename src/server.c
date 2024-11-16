@@ -52,24 +52,25 @@ int main(int argc, char *argv[]) {
     if (p == NULL) {
         close(sockfd);
         fprintf(stderr, "server: failed to bind\n");
-        exit(1);
+        return 1;
     }
 
     if (listen(sockfd, BACKLOG) == -1) {
         close(sockfd);
         perror("listen");
-        exit(1);
+        return 1;
     } else {
         fprintf(stdout, "server: listening on port: %s\n", port);
     }
 
+    if ((new_fd = accept(sockfd, (struct sockaddr *) &inc_addr, &addr_size)) == -1) {
+        perror("accept");
+        close(sockfd);
+        return 1;
+    }
+    int recv_len;
+    char buffer[MAX_BUFF_SIZE] = {0};
     while(1) {
-        if ((new_fd = accept(sockfd, (struct sockaddr *) &inc_addr, &addr_size)) == -1) {
-            perror("accept");
-            continue;
-        }
-        int recv_len;
-        char buffer[MAX_BUFF_SIZE] = {0};
         if ((recv_len = recv(new_fd, buffer, MAX_BUFF_SIZE, 0)) == -1) {
             perror("recv");
             close(new_fd);
