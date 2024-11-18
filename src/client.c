@@ -68,6 +68,7 @@ int main(int argc, char *argv[]) {
             break;
         }
     }
+    fprintf(stdout, "closing client\n");
     close(sockfd);
     return 0;
 }

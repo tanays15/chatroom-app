@@ -90,9 +90,13 @@ int main(int argc, char *argv[]) {
         free(msg);
         msg = NULL;
         if (exit_flag) {
+            fprintf(stdout, "closing client connection\n");
+            close(new_fd);
             break;
         }
     }
+    fprintf(stdout, "closing server\n");
+    close(sockfd);
     return 0;
 }
 
