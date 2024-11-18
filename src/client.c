@@ -50,19 +50,23 @@ int main(int argc, char *argv[]) {
     char buffer[MAX_BUFF_SIZE];
     int bytes_read;
     while (1) {
+        int exit_flag = 0;
         fscanf(stdin, "%31s", buffer); // 31 to ensure that buffer is NUL termianted
         if ((bytes_read = send(sockfd, buffer, strlen(buffer), 0)) < 0) {
             perror("send");
         }
         if (strcmp(buffer, "exit") == 0) {
-            break;
+            exit_flag = 1;
         }
         if ((bytes_read = recv(sockfd, buffer, MAX_BUFF_SIZE - 1, 0)) == -1) {
             perror("recv");
             exit(1);
         }
         buffer[bytes_read] = '\0';
-        fprintf(stdout, "%s\n", buffer);
+        fprintf(stdout, "recieved: %s\n", buffer);
+        if (exit_flag) {
+            break;
+        }
     }
     close(sockfd);
     return 0;

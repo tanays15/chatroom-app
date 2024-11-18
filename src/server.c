@@ -71,12 +71,17 @@ int main(int argc, char *argv[]) {
     int recv_len;
     char buffer[MAX_BUFF_SIZE] = {0};
     while(1) {
+        int exit_flag = 0;
         if ((recv_len = recv(new_fd, buffer, MAX_BUFF_SIZE, 0)) == -1) {
             perror("recv");
             close(new_fd);
             continue;
         }
         buffer[recv_len] = '\0';
+        fprintf(stdout, "recieved: %s\n", buffer);
+        if (strcmp(buffer, "exit") == 0) {
+            exit_flag = 1;
+        }
         char *msg = strdup(buffer);
         int len_msg = strlen(msg);
         if (send(new_fd, msg, len_msg, 0) == -1) {
@@ -84,7 +89,9 @@ int main(int argc, char *argv[]) {
         }
         free(msg);
         msg = NULL;
-        close(new_fd);
+        if (exit_flag) {
+            break;
+        }
     }
     return 0;
 }
