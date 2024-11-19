@@ -1,7 +1,7 @@
 # Variables
 
 CC = clang
-CFLAGS = -Wall -Werror
+CFLAGS = -Wall -Werror -g
 SRC_DIR = src
 OBJ_DIR = $(SRC_DIR)
 

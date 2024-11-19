@@ -1,6 +1,7 @@
 #include "parser.h"
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #define HEADER_SIZE 2
 // arbitrary numbers? better way to do this?
@@ -22,11 +23,11 @@ msg_t parseMessage(char *req) {
     // first 2 bytes is header
     msg_t curr = ERROR_MSG;
     char *p = authorizeHeader(req, &curr);
-    if (curr.auth == -1 || p == NULL) {
+    if (curr.auth == INVALID || p == NULL) {
         curr.msg = "Invalid Header";
-        return curr;
+    } else {
+        curr.msg = p;
     }
-    curr.msg = p;
     return curr;
 }
 
@@ -43,5 +44,5 @@ char *authorizeHeader(char *header_str, msg_t *resp) {
     } else {
         resp->auth = INVALID;
     }
-    return end_ptr;
+    return end_ptr + 1;
 }

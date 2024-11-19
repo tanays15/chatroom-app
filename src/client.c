@@ -52,6 +52,7 @@ int main(int argc, char *argv[]) {
     while (1) {
         int exit_flag = 0;
         fscanf(stdin, "%31s", buffer); // 31 to ensure that buffer is NUL termianted
+        buffer[MAX_BUFF_SIZE - 1] = '\0';
         if ((bytes_read = send(sockfd, buffer, strlen(buffer), 0)) < 0) {
             perror("send");
         }
