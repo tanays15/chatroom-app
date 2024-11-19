@@ -9,8 +9,7 @@
 #include <string.h>
 
 #define BACKLOG 10
-#define MAX_BUFF_SIZE 32
-
+#define MAX_BUFF_SIZE 1024
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -51,9 +50,13 @@ int main(int argc, char *argv[]) {
     int bytes_read;
     while (1) {
         int exit_flag = 0;
-        fscanf(stdin, "%31s", buffer); // 31 to ensure that buffer is NUL termianted
+        //fscanf(stdin, "%31s", buffer); // 31 to ensure that buffer is NUL termianted
+        if (fgets(buffer, MAX_BUFF_SIZE - 1, stdin) == NULL) {
+            fprintf(stdout, "Failed to read input\n");
+        }
         buffer[MAX_BUFF_SIZE - 1] = '\0';
-        if ((bytes_read = send(sockfd, buffer, strlen(buffer), 0)) < 0) {
+        fprintf(stdout, "sending: %s", buffer);
+        if (send(sockfd, buffer, strlen(buffer), 0) < 0) {
             perror("send");
         }
         if (strcmp(buffer, "exit") == 0 || strcmp(buffer, "close") == 0) {
