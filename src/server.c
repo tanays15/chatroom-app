@@ -76,17 +76,33 @@ int main(int argc, char *argv[]) {
             return 1;
         }
         fprintf(stdout, "Connected to client: %d\n", new_fd);
-        int recv_len;
-        char buffer[MAX_BUFF_SIZE] = {0};
         while(1) {
-            int exit_flag = 0;
+            //int exit_flag = 0;
+            int recv_len;
+            char buffer[MAX_BUFF_SIZE] = {0};
             if ((recv_len = recv(new_fd, buffer, MAX_BUFF_SIZE, 0)) == -1) {
                 perror("recv");
                 close(new_fd);
                 continue;
             }
             buffer[recv_len] = '\0';
-            fprintf(stdout, "recieved: %s\n", buffer);
+            fprintf(stdout, "LOG: %s\n", buffer);
+            msg_t resp = parseMessage(buffer);
+            if (resp.auth == INVALID) {
+                fprintf(stdout, "Could not read message\n");
+                char *error_resp = "ERROR";
+                int err_len = strlen(error_resp);
+                if (send(new_fd, error_resp, err_len, 0) == -1) {
+                    perror("send");
+                }
+            } else {
+                fprintf(stdout, "auth: %d\n", resp.auth);
+                fprintf(stdout, "recieved: %s\n", resp.msg);
+                if (send(new_fd, buffer, recv_len + 1, 0) == -1) {
+                    perror("send");
+                }
+            }
+            /*
             if (strcmp(buffer, "exit") == 0) {
                 exit_flag = 1;
             }
@@ -110,6 +126,7 @@ int main(int argc, char *argv[]) {
                 close(sockfd);
                 return 0;
             }
+            */
         }
     }
     close(sockfd);
