@@ -62,40 +62,49 @@ int main(int argc, char *argv[]) {
     } else {
         fprintf(stdout, "server: listening on port: %s\n", port);
     }
-
-    if ((new_fd = accept(sockfd, (struct sockaddr *) &inc_addr, &addr_size)) == -1) {
-        perror("accept");
-        close(sockfd);
-        return 1;
-    }
-    int recv_len;
-    char buffer[MAX_BUFF_SIZE] = {0};
     while(1) {
-        int exit_flag = 0;
-        if ((recv_len = recv(new_fd, buffer, MAX_BUFF_SIZE, 0)) == -1) {
-            perror("recv");
-            close(new_fd);
-            continue;
+        if ((new_fd = accept(sockfd, (struct sockaddr *) &inc_addr, &addr_size)) == -1) {
+            perror("accept");
+            close(sockfd);
+            return 1;
         }
-        buffer[recv_len] = '\0';
-        fprintf(stdout, "recieved: %s\n", buffer);
-        if (strcmp(buffer, "exit") == 0) {
-            exit_flag = 1;
-        }
-        char *msg = strdup(buffer);
-        int len_msg = strlen(msg);
-        if (send(new_fd, msg, len_msg, 0) == -1) {
-            perror("send");
-        }
-        free(msg);
-        msg = NULL;
-        if (exit_flag) {
-            fprintf(stdout, "closing client connection\n");
-            close(new_fd);
-            break;
+        fprintf(stdout, "Connected to client: %d\n", new_fd);
+        int recv_len;
+        char buffer[MAX_BUFF_SIZE] = {0};
+        while(1) {
+            int exit_flag = 0;
+            if ((recv_len = recv(new_fd, buffer, MAX_BUFF_SIZE, 0)) == -1) {
+                perror("recv");
+                close(new_fd);
+                continue;
+            }
+            buffer[recv_len] = '\0';
+            fprintf(stdout, "recieved: %s\n", buffer);
+            if (strcmp(buffer, "exit") == 0) {
+                exit_flag = 1;
+            }
+            if (strcmp(buffer, "close") == 0) {
+              exit_flag = 2;
+            }
+            char *msg = strdup(buffer);
+            int len_msg = strlen(msg);
+            if (send(new_fd, msg, len_msg, 0) == -1) {
+                perror("send");
+            }
+            free(msg);
+            msg = NULL;
+            if (exit_flag == 1) {
+                fprintf(stdout, "closing client connection from %d\n", new_fd);
+                close(new_fd);
+                break;
+            } else if (exit_flag == 2) {
+                fprintf(stdout, "closing server\n");
+                close(new_fd);
+                close(sockfd);
+                return 0;
+            }
         }
     }
-    fprintf(stdout, "closing server\n");
     close(sockfd);
     return 0;
 }

@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
         if ((bytes_read = send(sockfd, buffer, strlen(buffer), 0)) < 0) {
             perror("send");
         }
-        if (strcmp(buffer, "exit") == 0) {
+        if (strcmp(buffer, "exit") == 0 || strcmp(buffer, "close") == 0) {
             exit_flag = 1;
         }
         if ((bytes_read = recv(sockfd, buffer, MAX_BUFF_SIZE - 1, 0)) == -1) {
