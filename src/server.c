@@ -1,3 +1,9 @@
+/*
+ * EXPANSION: make simple parser -> allow multiple clients to connect to the same server -> expand API to move clients into "chatrooms" -> allow clients to chat within their rooms
+ */
+
+
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/socket.h>
