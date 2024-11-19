@@ -12,6 +12,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
+#include "parser.h"
 
 #define BACKLOG 10
 #define MAX_BUFF_SIZE 32

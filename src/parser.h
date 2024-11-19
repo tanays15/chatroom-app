@@ -1,5 +1,3 @@
-
-
 typedef enum auth {
     ADMIN,
     USER,
@@ -12,5 +10,6 @@ typedef struct message {
 } msg_t;
 
 
-msg_t parseMessage(char *);
-int authorizeHeader(char *);
+extern msg_t parseMessage(char *);
+extern char * authorizeHeader(char *, msg_t *);
+extern const msg_t ERROR_MSG;
