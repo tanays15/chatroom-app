@@ -18,14 +18,15 @@
 
 const msg_t ERROR_MSG = {"", -1};
 
-msg_t parseMessage(char *msg) {
+msg_t parseMessage(char *req) {
     // first 2 bytes is header
     msg_t curr = {0};
-    char *p = authorizeHeader(msg, &curr);
+    char *p = authorizeHeader(req, &curr);
     if (curr.auth == -1 || p == NULL) {
         curr.msg = "Invalid Header";
         return curr;
     }
+    curr.msg = strdup(p);
     return curr;
 }
 
@@ -33,7 +34,6 @@ char *authorizeHeader(char *header_str, msg_t *resp) {
     char *end_ptr;
     long header = strtol(header_str, &end_ptr, 16);
     if (end_ptr == header_str) {
-        resp->auth = INVALID;
         return NULL;
     }
     if (header == AUTH_HEADER) {
@@ -44,4 +44,9 @@ char *authorizeHeader(char *header_str, msg_t *resp) {
         resp->auth = INVALID;
     }
     return end_ptr;
+}
+
+void destroyMessage(msg_t *resp) {
+    free(resp->msg);
+    resp->msg = NULL;
 }
