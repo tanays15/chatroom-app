@@ -24,7 +24,7 @@ msg_t parseMessage(char *req) {
     msg_t curr = ERROR_MSG;
     char *p = authorizeHeader(req, &curr);
     if (curr.auth == INVALID || p == NULL) {
-        curr.msg = "Invalid Header";
+        curr.msg = "Invalid Header\n";
     } else {
         curr.msg = p;
     }

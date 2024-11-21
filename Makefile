@@ -11,7 +11,7 @@ all: $(OBJ_DIR)/server $(OBJ_DIR)/client
 $(OBJ_DIR)/server: $(OBJ_DIR)/server.o $(OBJ_DIR)/parser.o
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/server $(OBJ_DIR)/server.o $(OBJ_DIR)/parser.o
 
-$(OBJ_DIR)/server.o: $(SRC_DIR)/server.c $(SRC_DIR)/parser.h
+$(OBJ_DIR)/server.o: $(SRC_DIR)/server.c $(SRC_DIR)/server.h $(SRC_DIR)/parser.h
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/server.c -o $(OBJ_DIR)/server.o
 
 $(OBJ_DIR)/client: $(OBJ_DIR)/client.o
