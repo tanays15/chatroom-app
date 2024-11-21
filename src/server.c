@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
     char *port = argc != 2 ? "8080" : argv[1];
     struct sockaddr_storage inc_addr;
     socklen_t addr_size = sizeof (struct sockaddr);
-    int sockfd = createListener(port);
+    int sockfd = create_listener(port);
     while (1) {
         if ((new_fd = accept(sockfd, (struct sockaddr *) &inc_addr, (socklen_t *) &addr_size)) < 0) {
             perror("accept");
@@ -44,13 +44,15 @@ int main(int argc, char *argv[]) {
             }
             fprintf(stdout, "LOG: %s\n", buffer);
             msg_t resp = parseMessage(buffer);
-            send(new_fd, resp.msg, strlen(resp.msg), 0);
+            if (send_all(resp.msg, new_fd) < 0) {
+                fprintf(stdout, "Couldn't send response\n");
+            }
         }
     }
     return 0;
 }
 
-int createListener(char *port) {
+int create_listener(char *port) {
     struct addrinfo hints, *servinfo, *p; // sets up call for getaddrinfo
     int sockfd, status, yes;
     memset(&hints, 0, sizeof(hints)); // set hints to 0 before modifying fields
@@ -92,4 +94,19 @@ int createListener(char *port) {
         fprintf(stdout, "server: listening on port: %s\n", port);
     }
     return sockfd;
+}
+
+int send_all(char *resp, int sockfd) {
+    int bytes_sent = 0;
+    int buffer_len = strlen(resp);
+    int sent;
+    while (bytes_sent < buffer_len) {
+       if((sent = send(sockfd, resp + bytes_sent, buffer_len, 0)) == -1) {
+            perror("send");
+            break;
+        } 
+        bytes_sent += sent;
+        buffer_len -= sent;
+    }
+    return sent == -1 ? -1 : 0;
 }

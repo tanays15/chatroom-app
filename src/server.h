@@ -5,4 +5,5 @@ typedef enum exit {
 } exit_t;
 
 
-int createListener(char *);
+int create_listener(char *);
+int send_all(char *, int);
