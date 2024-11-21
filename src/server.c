@@ -19,35 +19,24 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <poll.h>
 #include "server.h"
 #include "parser.h"
 
 #define BACKLOG 10
 #define MAX_BUFF_SIZE 1024
+#define INIT_SIZE 5
 
 int main(int argc, char *argv[]) {
     int new_fd = 0;
+    struct pollfd pfds[INIT_SIZE];
     char *port = argc != 2 ? "8080" : argv[1];
     struct sockaddr_storage inc_addr;
     socklen_t addr_size = sizeof (struct sockaddr);
-    int sockfd = create_listener(port);
+    pfds[0].fd = create_listener(port);
+    pfds[0].events = POLL_IN;
     while (1) {
-        if ((new_fd = accept(sockfd, (struct sockaddr *) &inc_addr, (socklen_t *) &addr_size)) < 0) {
-            perror("accept");
-        }
-        while (1) {
-            int bytes_read;
-            char buffer[MAX_BUFF_SIZE];
-            if ((bytes_read = recv(new_fd, buffer, MAX_BUFF_SIZE, 0)) < 0) {
-                perror("recv");
-                continue;
-            }
-            fprintf(stdout, "LOG: %s\n", buffer);
-            msg_t resp = parseMessage(buffer);
-            if (send_all(resp.msg, new_fd) < 0) {
-                fprintf(stdout, "Couldn't send response\n");
-            }
-        }
+        
     }
     return 0;
 }
