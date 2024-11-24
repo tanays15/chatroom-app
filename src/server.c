@@ -21,6 +21,7 @@
 #include <unistd.h>
 #include <poll.h>
 #include "server.h"
+#include "util.h"
 //#include "parser.h"
 
 #define BACKLOG 10
@@ -83,19 +84,4 @@ int create_listener(char *port) {
         fprintf(stdout, "server: listening on port: %s\n", port);
     }
     return sockfd;
-}
-
-int send_all(char *resp, int sockfd) {
-    int bytes_sent = 0;
-    int buffer_len = strlen(resp);
-    int sent;
-    while (bytes_sent < buffer_len) {
-       if((sent = send(sockfd, resp + bytes_sent, buffer_len, 0)) == -1) {
-            perror("send");
-            break;
-        } 
-        bytes_sent += sent;
-        buffer_len -= sent;
-    }
-    return sent == -1 ? -1 : 0;
 }
