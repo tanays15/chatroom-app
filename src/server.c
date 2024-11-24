@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
-#include <sys/types.h>
 #include <unistd.h>
 #include <poll.h>
 #include "server.h"
@@ -21,8 +20,11 @@ int main(int argc, char *argv[]) {
     char *port = argc != 2 ? "8080" : argv[1];
     struct sockaddr_storage inc_addr;
     socklen_t addr_size = sizeof (struct sockaddr);
-    pfds[0].fd = create_listener(port);
-    pfds[0].events = POLL_IN;
+    int listener_socket = create_listener(port);
+    if (listener_socket == -1) {
+        fprintf(stdout, "Couldn't listen on socket\n");
+        return 1;
+    }
     while (1) {
         
     }
@@ -76,4 +78,19 @@ int bind_socket(int sockfd, struct addrinfo *serv_info) {
         return -1;
     }
     return 0;
+}
+
+void add_connection(struct pollfd *pfds[], int new_fd, int *fd_count, int *fd_cap) {
+    if (fd_cap == fd_count) {
+        *fd_count *= 2;
+        *pfds = realloc(*pfds, sizeof(**pfds) * (*fd_cap));
+    }
+    (*pfds)[(*fd_count)].fd = new_fd;
+    (*pfds)[(*fd_count)].events = POLL_IN;
+    (*fd_count)++;
+}
+
+void delete_connection(struct pollfd pfds[], int index, int *fd_count) {
+    pfds[index] = pfds[(*fd_count - 1)];
+    (*fd_count)--;
 }
