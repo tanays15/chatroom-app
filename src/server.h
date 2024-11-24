@@ -1,12 +1,6 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-typedef enum exit {
-    DEFAULT,
-    EXIT,
-    CLOSE
-} exit_t;
-
 
 int create_listener(char *);
 int bind_socket(int, struct addrinfo *);

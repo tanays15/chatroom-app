@@ -7,6 +7,8 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
+#include "client.h"
+#include "util.h"
 
 #define BACKLOG 10
 #define MAX_BUFF_SIZE 1024
@@ -29,13 +31,26 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "getaddrinfo error: %s\n", gai_strerror(status));
         exit(1);
     }
-    for (p = servinfo; p != NULL; p = p->ai_next) {
+    if (connect_socket(sockfd, servinfo) == -1) {
+        close_socket(sockfd);
+    }
+    char buffer[MAX_BUFF_SIZE];
+    int bytes_read;
+    while (1) {
+        fprintf(stdout, "waiting..\n");
+    }
+    close_socket(sockfd);
+    return 0;
+}
+
+int connect_socket(int sockfd, struct addrinfo *serv_info) {
+    struct addrinfo *p;
+    for (p = serv_info; p != NULL; p = p->ai_next) {
         if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
             perror("client: socket\n");
             continue;
         }
         if (connect(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
-            close(sockfd);
             perror("client connect:");
             continue;
         }
@@ -43,36 +58,7 @@ int main(int argc, char *argv[]) {
     }
     if (p == NULL) {
         fprintf(stderr, "Could not connect to server\n");
-        close(sockfd);
-        exit(0);
+        return -1;
     }
-    char buffer[MAX_BUFF_SIZE];
-    int bytes_read;
-    while (1) {
-        int exit_flag = 0;
-        //fscanf(stdin, "%31s", buffer); // 31 to ensure that buffer is NUL termianted
-        if (fgets(buffer, MAX_BUFF_SIZE - 1, stdin) == NULL) {
-            fprintf(stdout, "Failed to read input\n");
-        }
-        buffer[MAX_BUFF_SIZE - 1] = '\0';
-        fprintf(stdout, "sending: %s", buffer);
-        if (send(sockfd, buffer, strlen(buffer), 0) < 0) {
-            perror("send");
-        }
-        if (strcmp(buffer, "exit") == 0 || strcmp(buffer, "close") == 0) {
-            exit_flag = 1;
-        }
-        if ((bytes_read = recv(sockfd, buffer, MAX_BUFF_SIZE - 1, 0)) == -1) {
-            perror("recv");
-            exit(1);
-        }
-        buffer[bytes_read] = '\0';
-        fprintf(stdout, "recieved: %s\n", buffer);
-        if (exit_flag) {
-            break;
-        }
-    }
-    fprintf(stdout, "closing client\n");
-    close(sockfd);
     return 0;
 }

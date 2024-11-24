@@ -1,16 +1,3 @@
-/*
- * EXPANSION: make simple parser -> allow multiple clients to connect to the
- * same server -> expand API to move clients into "chatrooms" -> allow clients
- * to chat within their rooms
- */
-
-/*
- * FIXES:
- * allow spaces to be sent/read?
- * inputs should be: HEADER COMMAND -> text to echo?
- */
-
-
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <stdio.h>
