@@ -51,17 +51,31 @@ int create_listener(char *port) {
     hints.ai_socktype = SOCK_STREAM;
     if ((status = getaddrinfo(NULL, port, &hints, &servinfo)) < 0) {
         fprintf(stderr, "getaddrinfo error: %s\n", gai_strerror(status));
-        exit(1);
+        return -1;
     }
-    for (p = servinfo; p != NULL; p = p->ai_next) {
+    if (bind_socket(sockfd, servinfo) == -1) {
+        close_socket(sockfd);
+        return -1;
+    }
+    if (listen(sockfd, BACKLOG) == -1) {
+        close_socket(sockfd);
+        return -1;
+    }
+    fprintf(stdout, "server: listening on port: %s\n", port);
+    return sockfd;
+}
+
+int bind_socket(int sockfd, struct addrinfo *serv_info) {
+    struct addrinfo *p;
+    int yes;
+    for (p = serv_info; p != NULL; p = p->ai_next) {
         if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
             perror("server : socket\n");
             continue;
         }
         if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) {
-            close(sockfd);
             perror("setsockopt");
-            exit(1);
+            return -1;
         }
         if (bind(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
             perror("bind");
@@ -69,19 +83,10 @@ int create_listener(char *port) {
         }
         break;
     }
-    freeaddrinfo(servinfo);
+    freeaddrinfo(serv_info);
     if (p == NULL) {
-        close(sockfd);
-        fprintf(stderr, "server: failed to bind\n");
-        return 1;
+        perror("bind");
+        return -1;
     }
-
-    if (listen(sockfd, BACKLOG) == -1) {
-        close(sockfd);
-        perror("listen");
-        return 1;
-    } else {
-        fprintf(stdout, "server: listening on port: %s\n", port);
-    }
-    return sockfd;
+    return 0;
 }
