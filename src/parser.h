@@ -1,19 +1,23 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-typedef enum auth {
-    ADMIN,
-    USER,
-    INVALID = -1
-} auth_t;
+typedef enum cmd_type {
+    JOIN,
+    SEND,
+    LEAVE
+} cmd_type;
 
-typedef struct message {
-    char *msg;
-    int auth;
+typedef struct msg {
+    cmd_type type;
+    int room;
+    char *user;
+    char *data;
 } msg_t;
 
+msg_t parse_message(char *);
+int get_command(char, msg_t*);
+int validate_send(char *);
+int validate_msg(char *);
+int validate_leave(char *);
 
-extern msg_t parseMessage(char *);
-extern char * authorizeHeader(char *, msg_t *);
-extern const msg_t ERROR_MSG;
 #endif
