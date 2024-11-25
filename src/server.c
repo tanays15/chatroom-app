@@ -79,8 +79,8 @@ int main(int argc, char *argv[]) {
 }
 
 int create_listener(char *port) {
-    struct addrinfo hints, *servinfo, *p; // sets up call for getaddrinfo
-    int sockfd, status, yes;
+    struct addrinfo hints, *servinfo; // sets up call for getaddrinfo
+    int sockfd, status;
     memset(&hints, 0, sizeof(hints)); // set hints to 0 before modifying fields
     hints.ai_flags = AI_PASSIVE;
     hints.ai_family = AF_INET;
@@ -89,7 +89,7 @@ int create_listener(char *port) {
         fprintf(stderr, "getaddrinfo error: %s\n", gai_strerror(status));
         return -1;
     }
-    if (bind_socket(sockfd, servinfo) == -1) {
+    if ((sockfd = bind_socket(servinfo)) == -1) {
         close_socket(sockfd);
         return -1;
     }
@@ -101,7 +101,8 @@ int create_listener(char *port) {
     return sockfd;
 }
 
-int bind_socket(int sockfd, struct addrinfo *serv_info) {
+int bind_socket(struct addrinfo *serv_info) {
+    int sockfd;
     struct addrinfo *p;
     int yes;
     for (p = serv_info; p != NULL; p = p->ai_next) {
@@ -124,7 +125,7 @@ int bind_socket(int sockfd, struct addrinfo *serv_info) {
         perror("bind");
         return -1;
     }
-    return 0;
+    return sockfd;
 }
 
 void add_connection(struct pollfd *pfds[], int new_fd, int *fd_count, int *fd_cap) {
