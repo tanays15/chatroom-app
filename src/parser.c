@@ -20,7 +20,7 @@ msg_t parse_message(char *buffer) {
         return ERR_MSG;
     }
     new_msg.type = type;
-    while (*p == ' ') {
+    while (*p == ' ' || *p == '\t') {
         p++;
     }
     if (type == JOIN) {

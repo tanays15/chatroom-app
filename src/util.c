@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#define MAX_LEN ((2<<7) - 1)
+
 int send_all(int sockfd, const char *resp, int resp_len) {
   int total_bytes_sent = 0;
   int bytes_sent;
@@ -43,4 +45,23 @@ int recv_all(int sockfd, char *req, char **buf) {
 void close_socket(int sockfd) {
     close(sockfd);
     fprintf(stdout, "socket closed\n");
+}
+
+unsigned char *create_packet(unsigned char *data) {
+    int len = strlen((char *) data);
+    if (len > MAX_LEN) {
+        return NULL;
+    }
+    unsigned char *packet = malloc(len + 1); // + 1 for length byte at header of packet
+    if (packet == NULL) {
+        return NULL;
+    }
+    unsigned char *p = packet;
+    unsigned char *s = data;
+    *p++ = (uint8_t) len;
+    while (*s != '\0') {
+        *p++ = *s++;
+    }
+    *p = '\0';
+    return packet;
 }
