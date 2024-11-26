@@ -1,11 +1,11 @@
-#include "parser.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "parser.h"
 
 #define BASE_10 10
 
-const msg_t ERR_MSG = {ERR, -1, "", ""};
+const msg_t ERR_MSG = {ERR, -1, ""};
 
 msg_t parse_message(char *buffer) {
     if (strlen(buffer) < 1) {
@@ -25,13 +25,25 @@ msg_t parse_message(char *buffer) {
     }
     if (type == JOIN) {
         validate = validate_join(p);
+        if (validate == -1) {
+            return ERR_MSG;
+        }
+        new_msg.room = validate;
+        new_msg.data = "";
     } else if (type == SEND) {
         validate = validate_send(p);
+        if (validate == -1) {
+            return ERR_MSG;
+        }
+        new_msg.data = p;
+        new_msg.room = -1;
     } else {
         validate = validate_leave(p);
-    }
-    if (validate == -1) {
-        return ERR_MSG;
+        if (validate == -1) {
+            return ERR_MSG;
+        }
+        new_msg.data = "";
+        new_msg.room = -1;
     }
     return new_msg;
 }
@@ -51,7 +63,7 @@ cmd_type get_command(char cmd) {
 int validate_join(char *data) {
     char *end_ptr;
     long chatroom = strtol(data, &end_ptr, BASE_10);
-    if (*end_ptr == '\0' || end_ptr == data) {
+    if (*end_ptr != '\0' || end_ptr == data) {
         return -1;
     }
     return chatroom;

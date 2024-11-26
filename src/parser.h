@@ -11,7 +11,6 @@ typedef enum cmd_type {
 typedef struct msg {
     cmd_type type;
     int room;
-    char *user;
     char *data;
 } msg_t;
 
