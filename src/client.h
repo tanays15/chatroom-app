@@ -1,6 +1,7 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
-int connect_socket(int, struct addrinfo *);
+int create_socket(char *);
+int connect_socket(struct addrinfo *);
 
 #endif

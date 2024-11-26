@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <ctype.h>
 #include "parser.h"
 
 #define BASE_10 10
@@ -8,7 +9,7 @@
 const msg_t ERR_MSG = {ERR, -1, ""};
 
 msg_t parse_message(char *buffer) {
-    if (strlen(buffer) < 1) {
+    if (buffer == NULL || strlen(buffer) < 1) {
         return ERR_MSG;
     }
     char *p = buffer;
@@ -20,7 +21,7 @@ msg_t parse_message(char *buffer) {
         return ERR_MSG;
     }
     new_msg.type = type;
-    while (*p == ' ' || *p == '\t') {
+    while (*p == ' ' || isspace(*p)) {
         p++;
     }
     if (type == JOIN) {
