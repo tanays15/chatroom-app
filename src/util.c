@@ -57,11 +57,21 @@ unsigned char *create_packet(unsigned char *data) {
         return NULL;
     }
     unsigned char *p = packet;
-    unsigned char *s = data;
     *p++ = (uint8_t) len;
-    while (*s != '\0') {
-        *p++ = *s++;
-    }
-    *p = '\0';
+    memcpy(p, data, len);
     return packet;
+}
+
+char *unpack_packet(unsigned char *packet) {
+    if (packet == NULL) {
+        return NULL;
+    }
+    uint8_t len = packet[0];
+    char *message = malloc(len + 1); // + 1 for the NUL
+    if (message == NULL) {
+        return NULL;
+    }
+    memcpy(message, (char *) (packet + 1), len);
+    message[len] = '\0';
+    return message;
 }
