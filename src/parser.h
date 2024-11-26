@@ -4,7 +4,8 @@
 typedef enum cmd_type {
     JOIN,
     SEND,
-    LEAVE
+    LEAVE,
+    ERR
 } cmd_type;
 
 typedef struct msg {
@@ -14,10 +15,12 @@ typedef struct msg {
     char *data;
 } msg_t;
 
+extern const msg_t ERR_MSG;
+
 msg_t parse_message(char *);
-int get_command(char, msg_t*);
+cmd_type get_command(char);
+int validate_join(char *);
 int validate_send(char *);
-int validate_msg(char *);
 int validate_leave(char *);
 
 #endif
