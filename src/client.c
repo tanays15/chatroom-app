@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     char *port = argv[1];
-    int client_socket = create_socket(argv[1]);
+    int client_socket = create_socket(port);
     if (client_socket == -1) {
         fprintf(stdout, "Unable to connect to server\n");
         return -1;

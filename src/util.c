@@ -26,12 +26,12 @@ int recv_all(int sockfd, char **buf) {
     int bytes_read;
     uint8_t len;
     // read first byte for length of packet
-    *buf = malloc(len);
     // up to caller to free this allocated memory
-    if (recv(sockfd, &len, sizeof(uint8_t), 0) == -1) {
+    if (recv(sockfd, &len, 1, 0) == -1) {
         fprintf(stdout, "Invalid Header\n");
         return -1;
     }
+    *buf = malloc(len);
     while (total_bytes_read < len) {
         if ((bytes_read = recv(sockfd, buf + total_bytes_read, len ,0)) == -1) {
             perror("recv");
