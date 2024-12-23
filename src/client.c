@@ -40,15 +40,28 @@ int main(int argc, char *argv[]) {
             continue;
         }
         int packet_size = strlen((char *) packet);
+        fprintf(stdout, "sending: %s\n", packet);
         if (send_all(client_socket, (char *) packet, packet_size) == -1) {
             fprintf(stdout, "error: couldn't send packet\n");
             continue;
         }
-        char *serv_resp;
-        if (recv_all(client_socket, &serv_resp) == -1) {
+        free(packet);
+        packet = NULL;
+        char *serv_pack;
+        if (recv_all(client_socket, &serv_pack) == -1) {
             fprintf(stdout, "error: couldn't recieve packet\n");
             continue;
         }
+        char *response = unpack_packet((unsigned char *)serv_pack);
+        free(serv_pack);
+        serv_pack = NULL;
+        if (response == NULL) {
+            fprintf(stdout, "error: bad packet recieved\n");
+            continue;
+        }
+        fprintf(stdout, "recieved: %s\n", response);
+        free(response);
+        response = NULL;
     }
 
 }

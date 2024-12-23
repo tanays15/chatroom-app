@@ -70,6 +70,7 @@ char *unpack_packet(unsigned char *packet) {
     }
     uint8_t len = packet[0];
     char *message = malloc(len + 1); // + 1 for the NUL
+    // up to caller to free this memory
     if (message == NULL) {
         return NULL;
     }
