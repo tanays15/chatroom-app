@@ -1,4 +1,3 @@
-// c file for client
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/socket.h>
@@ -11,12 +10,45 @@
 #include "util.h"
 
 #define BACKLOG 10
-#define MAX_BUFF_SIZE 1024
+#define MAX_BUFF_SIZE ((2<<7) - 1)
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
         fprintf(stdout, "Incorrect arguments provided\n");
         return 1;
+    }
+    char *port = argv[1];
+    int client_socket = create_socket(argv[1]);
+    if (client_socket == -1) {
+        fprintf(stdout, "Unable to connect to server\n");
+        return -1;
+    }
+    char buf[MAX_BUFF_SIZE];
+    while (1) {
+        if (fgets(buf, MAX_BUFF_SIZE, stdin) == NULL) {
+            fprintf(stdout, "error: invalid input\n");
+            continue;
+        }
+        if (strcmp(buf, "exit") == 0) {
+            fprintf(stdout, "closing client\n");
+            close_socket(client_socket);
+            return 1;
+        }
+        unsigned char *packet = create_packet(buf);
+        if (packet == NULL) {
+            fprintf(stdout, "error: invalid packet format\n");
+            continue;
+        }
+        int packet_size = strlen((char *) packet);
+        if (send_all(client_socket, (char *) packet, packet_size) == -1) {
+            fprintf(stdout, "error: couldn't send packet\n");
+            continue;
+        }
+        char *serv_resp;
+        if (recv_all(client_socket, &serv_resp) == -1) {
+            fprintf(stdout, "error: couldn't recieve packet\n");
+            continue;
+        }
     }
 
 }

@@ -21,12 +21,13 @@ int send_all(int sockfd, const char *resp, int resp_len) {
   return bytes_sent == -1 ? -1 : 0;
 }
 
-int recv_all(int sockfd, char *req, char **buf) {
+int recv_all(int sockfd, char **buf) {
     int total_bytes_read = 0;
     int bytes_read;
     uint8_t len;
     // read first byte for length of packet
     *buf = malloc(len);
+    // up to caller to free this allocated memory
     if (recv(sockfd, &len, sizeof(uint8_t), 0) == -1) {
         fprintf(stdout, "Invalid Header\n");
         return -1;
@@ -53,6 +54,7 @@ unsigned char *create_packet(unsigned char *data) {
         return NULL;
     }
     unsigned char *packet = malloc(len + 1); // + 1 for length byte at header of packet
+    // up to caller to free this pointer
     if (packet == NULL) {
         return NULL;
     }
