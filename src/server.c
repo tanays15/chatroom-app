@@ -59,10 +59,12 @@ int main(int argc, char *argv[]) {
                             perror("recv");
                         }
                         close(pfds[i].fd);
-                        delete_connection(pfds, sender_fd, &fd_count);
+                        delete_connection(pfds, i, &fd_count);
                         continue;
                     }
+                    fprintf(stdout, "len: %02X\n", buf[0]);
                     char *request = unpack_packet((unsigned char *) buf);
+                    fprintf(stdout, "recieved: %s\n", request);
                     free(buf);
                     buf = NULL;
                     if (!request) {

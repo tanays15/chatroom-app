@@ -36,14 +36,17 @@ int recv_all(int sockfd, char **buf) {
     }
     *buf = malloc(len);
     while (total_bytes_read < len) {
-        if ((bytes_read = recv(sockfd, buf + total_bytes_read, len ,0)) == -1) {
+        if ((bytes_read = recv(sockfd, *(buf + total_bytes_read), len ,0)) == -1) {
             perror("recv");
             break;
+        }
+        if (bytes_read == 0) {
+            return 0;
         }
         total_bytes_read += bytes_read;
         len -= bytes_read;
     }
-    return bytes_read == -1 ? -1 : 0;
+    return bytes_read == -1 ? -1 : 1;
 }
 
 void close_socket(int sockfd) {
@@ -51,8 +54,9 @@ void close_socket(int sockfd) {
     fprintf(stdout, "socket closed\n");
 }
 
-unsigned char *create_packet(unsigned char *data) {
-    int len = strlen((char *) data);
+unsigned char *create_packet(char *data) {
+    fprintf(stdout, "current packet is: %s\n", data);
+    int len = strlen(data);
     if (len > MAX_LEN) {
         return NULL;
     }
@@ -62,8 +66,8 @@ unsigned char *create_packet(unsigned char *data) {
         return NULL;
     }
     unsigned char *p = packet;
-    *p++ = (uint8_t) len;
-    memcpy(p, data, len);
+    *p = (uint8_t) len;
+    memcpy(p + 1, data, len);
     return packet;
 }
 

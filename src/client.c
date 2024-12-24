@@ -34,12 +34,14 @@ int main(int argc, char *argv[]) {
             close_socket(client_socket);
             return 1;
         }
+        int buf_size = strlen(buf) - 1;
+        buf[buf_size] = '\0';
         unsigned char *packet = create_packet(buf);
         if (packet == NULL) {
             fprintf(stdout, "error: invalid packet format\n");
             continue;
         }
-        int packet_size = strlen((char *) packet);
+        int packet_size = buf_size;
         fprintf(stdout, "sending: %s\n", packet);
         if (send_all(client_socket, (char *) packet, packet_size) == -1) {
             fprintf(stdout, "error: couldn't send packet\n");
