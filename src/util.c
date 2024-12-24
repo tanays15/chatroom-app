@@ -8,17 +8,20 @@
 #define MAX_LEN ((2<<7) - 1)
 
 int send_all(int sockfd, const char *resp, int resp_len) {
-  int total_bytes_sent = 0;
-  int bytes_sent;
-  while (total_bytes_sent < resp_len) {
-    if ((bytes_sent = send(sockfd, resp + total_bytes_sent, resp_len, 0)) == -1) {
-      perror("send");
-      break;
+    int total_bytes_sent = 0;
+    int bytes_sent;
+    while (total_bytes_sent < resp_len) {
+        if ((bytes_sent = send(sockfd, resp + total_bytes_sent, resp_len, 0)) == -1) {
+            perror("send");
+            break;
+        }
+        if (bytes_sent == 0) {
+            return 0;
+        }
+        total_bytes_sent += bytes_sent;
+        resp_len -= bytes_sent;
     }
-    total_bytes_sent += bytes_sent;
-    resp_len -= bytes_sent;
-  }
-  return bytes_sent == -1 ? -1 : 0;
+    return bytes_sent == -1 ? -1 : 1;
 }
 
 int recv_all(int sockfd, char **buf) {

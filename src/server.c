@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
     int fd_count = 0;
     int fd_cap = INIT_SIZE;
     struct pollfd *pfds = malloc(sizeof (struct pollfd) * fd_cap);
-    char buf[MAX_BUFF_SIZE];
+    char *buf;
     int listener_socket = create_listener(port);
     if (listener_socket == -1) {
         fprintf(stdout, "Couldn't listen on socket\n");
@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
                     add_connection(&pfds, new_fd, &fd_count, &fd_cap);
                     fprintf(stdout, "Connected to %d\n", new_fd);
                 } else { // else read from a client
-                    int bytes = recv(pfds[i].fd, buf, MAX_BUFF_SIZE, 0);
+                    int bytes = recv_all(pfds[i].fd, &buf);
                     int sender_fd = pfds[i].fd;
                     if (bytes <= 0) {
                         if (bytes == 0) {
@@ -62,15 +62,31 @@ int main(int argc, char *argv[]) {
                         delete_connection(pfds, sender_fd, &fd_count);
                         continue;
                     }
-                    buf[bytes] = '\0';
+                    char *request = unpack_packet((unsigned char *) buf);
+                    free(buf);
+                    buf = NULL;
+                    if (!request) {
+                        fprintf(stdout, "error: bad packet recieved\n");
+                        continue;
+                    }
+                    unsigned char *resp = create_packet(request);
+                    free(request);
+                    request = NULL;
+                    if (resp == NULL) {
+                        fprintf(stdout, "error: bad packet\n");
+                        continue;
+                    }
+                    int resp_len = strlen((char *)resp);
                     for (int j = 0; j < fd_count; ++j) {
                         int curr_client = pfds[j].fd;
                         if (curr_client != sender_fd && curr_client != listener_socket) {
-                            if (send(curr_client, buf, bytes, 0) == -1) {
-                                perror("send");
+                            if (send_all(sender_fd, (char *)resp, resp_len) == -1) {
+                                fprintf(stdout, "error: couldn't send response\n");
                             }
                         }
                     }
+                    free(resp);
+                    resp = NULL;
                 }
             }
         }
