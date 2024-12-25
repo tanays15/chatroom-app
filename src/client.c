@@ -42,11 +42,6 @@ int main(int argc, char *argv[]) {
             continue;
         }
         int packet_size = buf_size + 1; // add first length byte
-        fprintf(stdout, "printing packet\n");
-        for (int i = 0; i < packet_size; ++i) {
-            fprintf(stdout, "%02X ", packet[i]);
-        }
-        fprintf(stdout, "\n");
         if (send_all(client_socket, (char *) packet, packet_size) == -1) {
             fprintf(stdout, "error: couldn't send packet\n");
             continue;

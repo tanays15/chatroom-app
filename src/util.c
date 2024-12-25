@@ -36,7 +36,7 @@ int recv_all(int sockfd, unsigned char **buf) {
     }
     *buf = malloc(len);
     while (total_bytes_read < len) {
-        if ((bytes_read = recv(sockfd, *(buf + total_bytes_read), len ,0)) == -1) {
+        if ((bytes_read = recv(sockfd, *(buf + total_bytes_read), len - total_bytes_read,0)) == -1) {
             perror("recv");
             break;
         }
