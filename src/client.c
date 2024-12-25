@@ -41,15 +41,19 @@ int main(int argc, char *argv[]) {
             fprintf(stdout, "error: invalid packet format\n");
             continue;
         }
-        int packet_size = buf_size;
-        fprintf(stdout, "sending: %s\n", packet);
+        int packet_size = buf_size + 1; // add first length byte
+        fprintf(stdout, "printing packet\n");
+        for (int i = 0; i < packet_size; ++i) {
+            fprintf(stdout, "%02X ", packet[i]);
+        }
+        fprintf(stdout, "\n");
         if (send_all(client_socket, (char *) packet, packet_size) == -1) {
             fprintf(stdout, "error: couldn't send packet\n");
             continue;
         }
         free(packet);
         packet = NULL;
-        char *serv_pack;
+        unsigned char *serv_pack;
         if (recv_all(client_socket, &serv_pack) == -1) {
             fprintf(stdout, "error: couldn't recieve packet\n");
             continue;

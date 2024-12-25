@@ -24,7 +24,7 @@ int send_all(int sockfd, const char *resp, int resp_len) {
     return bytes_sent == -1 ? -1 : 1;
 }
 
-int recv_all(int sockfd, char **buf) {
+int recv_all(int sockfd, unsigned char **buf) {
     int total_bytes_read = 0;
     int bytes_read;
     uint8_t len;

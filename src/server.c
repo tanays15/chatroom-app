@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
     int fd_count = 0;
     int fd_cap = INIT_SIZE;
     struct pollfd *pfds = malloc(sizeof (struct pollfd) * fd_cap);
-    char *buf;
+    unsigned char *buf;
     int listener_socket = create_listener(port);
     if (listener_socket == -1) {
         fprintf(stdout, "Couldn't listen on socket\n");
@@ -62,9 +62,11 @@ int main(int argc, char *argv[]) {
                         delete_connection(pfds, i, &fd_count);
                         continue;
                     }
-                    fprintf(stdout, "len: %02X\n", buf[0]);
+                    for (int i = 0; i < 6; ++i) {
+                        fprintf(stdout, "%02X", buf[i]);
+                    }
+                    fprintf(stdout, "\n");
                     char *request = unpack_packet((unsigned char *) buf);
-                    fprintf(stdout, "recieved: %s\n", request);
                     free(buf);
                     buf = NULL;
                     if (!request) {
