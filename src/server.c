@@ -62,20 +62,9 @@ int main(int argc, char *argv[]) {
                         delete_connection(pfds, i, &fd_count);
                         continue;
                     }
-                    for (int i = 0; i < 6; ++i) {
-                        fprintf(stdout, "%02X", buf[i]);
-                    }
-                    fprintf(stdout, "\n");
-                    char *request = unpack_packet((unsigned char *) buf);
+                    unsigned char *resp = create_packet((char *)buf);
                     free(buf);
                     buf = NULL;
-                    if (!request) {
-                        fprintf(stdout, "error: bad packet recieved\n");
-                        continue;
-                    }
-                    unsigned char *resp = create_packet(request);
-                    free(request);
-                    request = NULL;
                     if (resp == NULL) {
                         fprintf(stdout, "error: bad packet\n");
                         continue;
