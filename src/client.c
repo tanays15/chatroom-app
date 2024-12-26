@@ -35,6 +35,9 @@ int main(int argc, char *argv[]) {
             return 1;
         }
         int buf_size = strlen(buf) - 1;
+        if (buf_size <= 0) {
+            continue;
+        }
         buf[buf_size] = '\0';
         unsigned char *packet = create_packet(buf);
         if (packet == NULL) {
@@ -42,6 +45,7 @@ int main(int argc, char *argv[]) {
             continue;
         }
         int packet_size = buf_size + 1; // add first length byte
+        fprintf(stdout, "client sending: %s\n", packet);
         if (send_all(client_socket, (char *) packet, packet_size) == -1) {
             fprintf(stdout, "error: couldn't send packet\n");
             continue;
@@ -53,16 +57,13 @@ int main(int argc, char *argv[]) {
             fprintf(stdout, "error: couldn't recieve packet\n");
             continue;
         }
-        char *response = unpack_packet((unsigned char *)serv_pack);
-        free(serv_pack);
-        serv_pack = NULL;
-        if (response == NULL) {
+        if (serv_pack == NULL) {
             fprintf(stdout, "error: bad packet recieved\n");
             continue;
         }
-        fprintf(stdout, "recieved: %s\n", response);
-        free(response);
-        response = NULL;
+        fprintf(stdout, "client recieved: %s\n", serv_pack);
+        free(serv_pack);
+        serv_pack = NULL;
     }
 
 }

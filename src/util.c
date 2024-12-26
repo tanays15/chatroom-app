@@ -34,9 +34,9 @@ int recv_all(int sockfd, unsigned char **buf) {
         fprintf(stdout, "Invalid Header\n");
         return -1;
     }
-    *buf = malloc(len);
+    *buf = malloc(len + 1);
     while (total_bytes_read < len) {
-        if ((bytes_read = recv(sockfd, *(buf + total_bytes_read), len - total_bytes_read,0)) == -1) {
+        if ((bytes_read = recv(sockfd, *(buf + total_bytes_read), len, 0)) == -1) {
             perror("recv");
             break;
         }
@@ -55,7 +55,6 @@ void close_socket(int sockfd) {
 }
 
 unsigned char *create_packet(char *data) {
-    fprintf(stdout, "current packet is: %s\n", data);
     int len = strlen(data);
     if (len > MAX_LEN) {
         return NULL;

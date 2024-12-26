@@ -62,6 +62,7 @@ int main(int argc, char *argv[]) {
                         delete_connection(pfds, i, &fd_count);
                         continue;
                     }
+                    fprintf(stdout, "server recieved: %s\n", buf);
                     unsigned char *resp = create_packet((char *)buf);
                     free(buf);
                     buf = NULL;
@@ -72,7 +73,7 @@ int main(int argc, char *argv[]) {
                     int resp_len = strlen((char *)resp);
                     for (int j = 0; j < fd_count; ++j) {
                         int curr_client = pfds[j].fd;
-                        if (curr_client != sender_fd && curr_client != listener_socket) {
+                        if (/*curr_client != sender_fd && */curr_client != listener_socket) {
                             if (send_all(sender_fd, (char *)resp, resp_len) == -1) {
                                 fprintf(stdout, "error: couldn't send response\n");
                             }
