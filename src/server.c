@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
                     int sender_fd = pfds[i].fd;
                     if (bytes <= 0) {
                         if (bytes == 0) {
-                            fprintf(stdout, "Client closed connection\n");
+                            fprintf(stdout, "client %d closed connection\n", sender_fd);
                         } else {
                             perror("recv");
                         }
@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
                         delete_connection(pfds, i, &fd_count);
                         continue;
                     }
-                    fprintf(stdout, "server recieved: %s\n", buf);
+                    fprintf(stdout, "server recieved: %s from client %d\n", buf, sender_fd);
                     unsigned char *resp = create_packet((char *)buf);
                     free(buf);
                     buf = NULL;
@@ -73,7 +73,8 @@ int main(int argc, char *argv[]) {
                     int resp_len = strlen((char *)resp);
                     for (int j = 0; j < fd_count; ++j) {
                         int curr_client = pfds[j].fd;
-                        if (/*curr_client != sender_fd && */curr_client != listener_socket) {
+                        if (curr_client != sender_fd && curr_client != listener_socket) {
+                            fprintf(stdout, "server sending: %s to client %d\n", resp, curr_client);
                             if (send_all(sender_fd, (char *)resp, resp_len) == -1) {
                                 fprintf(stdout, "error: couldn't send response\n");
                             }
