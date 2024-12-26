@@ -11,7 +11,7 @@ int send_all(int sockfd, const char *resp, int resp_len) {
     int total_bytes_sent = 0;
     int bytes_sent;
     while (total_bytes_sent < resp_len) {
-        if ((bytes_sent = send(sockfd, resp + total_bytes_sent, resp_len, 0)) == -1) {
+        if ((bytes_sent = send(sockfd, resp + total_bytes_sent, resp_len, MSG_DONTWAIT)) == -1) {
             perror("send");
             break;
         }

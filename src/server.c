@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
                         int curr_client = pfds[j].fd;
                         if (curr_client != sender_fd && curr_client != listener_socket) {
                             fprintf(stdout, "server sending: %s to client %d\n", resp, curr_client);
-                            if (send_all(sender_fd, (char *)resp, resp_len) == -1) {
+                            if (send_all(curr_client, (char *)resp, resp_len) == -1) {
                                 fprintf(stdout, "error: couldn't send response\n");
                             }
                         }
