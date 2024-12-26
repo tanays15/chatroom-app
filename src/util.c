@@ -34,6 +34,9 @@ int recv_all(int sockfd, unsigned char **buf) {
         fprintf(stdout, "Invalid Header\n");
         return -1;
     }
+    if (len == 0) {
+        return 0;
+    }
     *buf = malloc(len + 1);
     while (total_bytes_read < len) {
         if ((bytes_read = recv(sockfd, *(buf + total_bytes_read), len, 0)) == -1) {
