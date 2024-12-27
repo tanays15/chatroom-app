@@ -8,7 +8,7 @@
 #include <poll.h>
 #include "server.h"
 #include "util.h"
-//#include "parser.h"
+#include "parser.h"
 
 #define BACKLOG 10
 #define MAX_BUFF_SIZE 1024
@@ -22,8 +22,10 @@ int main(int argc, char *argv[]) {
     socklen_t addr_size = sizeof (struct sockaddr);
     int fd_count = 0;
     int fd_cap = INIT_SIZE;
+    int user_count = 0;
+    int user_cap = INIT_SIZE;
     struct pollfd *pfds = malloc(sizeof (struct pollfd) * fd_cap);
-    user_t *users = malloc(sizeof(user_t) * INIT_SIZE);
+    user_t *users = malloc(sizeof(user_t) * user_cap);
     unsigned char *buf;
     int listener_socket = create_listener(port);
     if (listener_socket == -1) {
@@ -49,6 +51,7 @@ int main(int argc, char *argv[]) {
                         perror("accept");
                     }
                     add_connection(&pfds, new_fd, &fd_count, &fd_cap);
+                    add_user(&users, new_fd, &user_count, &user_cap);
                     fprintf(stdout, "Connected to %d\n", new_fd);
                 } else { // else read from a client
                     int bytes = recv_all(pfds[i].fd, &buf);
@@ -61,28 +64,61 @@ int main(int argc, char *argv[]) {
                         }
                         close(pfds[i].fd);
                         delete_connection(pfds, i, &fd_count);
+                        delete_user(users, i, &user_count);
                         continue;
                     }
                     fprintf(stdout, "server recieved: %s from client %d\n", buf, sender_fd);
-                    unsigned char *resp = create_packet((char *)buf);
-                    free(buf);
-                    buf = NULL;
-                    if (resp == NULL) {
-                        fprintf(stdout, "error: bad packet\n");
+                    msg_t msg = parse_message((char *) buf);
+                    if (msg.type == ERR) {
+                        fprintf(stdout, "error: invalid command\n");
                         continue;
-                    }
-                    int resp_len = strlen((char *)resp);
-                    for (int j = 0; j < fd_count; ++j) {
-                        int curr_client = pfds[j].fd;
-                        if (curr_client != sender_fd && curr_client != listener_socket) {
-                            fprintf(stdout, "server sending: %s to client %d\n", resp, curr_client);
-                            if (send_all(curr_client, (char *)resp, resp_len) == -1) {
-                                fprintf(stdout, "error: couldn't send response\n");
+                    } else if (msg.type == JOIN) {
+                        for (int i = 0; i < user_count; i++) {
+                            fprintf(stdout, "user %d joining room %d\n", sender_fd, msg.room);
+                            if (users[i].socket == sender_fd) {
+                                users[i].room = msg.room;
+                                break;
+                            }
+                        }
+                    } else if (msg.type == SEND) {
+                        int sender_room;
+                        for (int j = 0; j < user_count; j++) {
+                            if (users[j].socket == sender_fd) {
+                                sender_room = users[j].room;
+                            }
+                        }
+                        fprintf(stdout, "sender room: %d\n", sender_room);
+                        unsigned char *resp = create_packet((char *)buf);
+                        free(buf);
+                        buf = NULL;
+                        if (resp == NULL) {
+                            fprintf(stdout, "error: bad packet\n");
+                            continue;
+                        }
+                        int resp_len = strlen((char *)resp);
+                        for (int j = 0; j < fd_count; ++j) {
+                            int curr_client = pfds[j].fd;
+                            int curr_room = users[j].room;
+                            fprintf(stdout, "curr room: %d\n", curr_room);
+                            if (curr_client != sender_fd && curr_client != listener_socket && curr_room == sender_room) {
+                                fprintf(stdout, "server sending: %s to client %d\n", resp, curr_client);
+                                if (send_all(curr_client, (char *)resp, resp_len) == -1) {
+                                    fprintf(stdout, "error: couldn't send response\n");
+                                }
+                            }
+                        }
+                        free(resp);
+                        resp = NULL;
+
+                    } else {
+                        for (int i = 0; i < user_count; i++) {
+                            if (users[i].socket == sender_fd) {
+                                fprintf(stdout, "user %d leaving room %d\n", sender_fd, users[i].room);
+                                users[i].room = 0;
+                                break;
                             }
                         }
                     }
-                    free(resp);
-                    resp = NULL;
                 }
             }
         }
@@ -160,7 +196,6 @@ void add_user(user_t *users[], int new_fd, int *user_count, int *user_cap) {
         *user_cap *= 2;
         *users = realloc(*users, sizeof(**users) * (*user_cap));
     }
-    user_t *new_user = malloc(sizeof(user_t));
     (*users)[(*user_count)].room = 0;
     (*users)[(*user_count)].socket = new_fd;
     (*user_count)++;
