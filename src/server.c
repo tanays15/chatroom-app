@@ -23,6 +23,7 @@ int main(int argc, char *argv[]) {
     int fd_count = 0;
     int fd_cap = INIT_SIZE;
     struct pollfd *pfds = malloc(sizeof (struct pollfd) * fd_cap);
+    user_t *users = malloc(sizeof(user_t) * INIT_SIZE);
     unsigned char *buf;
     int listener_socket = create_listener(port);
     if (listener_socket == -1) {
@@ -140,8 +141,8 @@ int bind_socket(struct addrinfo *serv_info) {
 }
 
 void add_connection(struct pollfd *pfds[], int new_fd, int *fd_count, int *fd_cap) {
-    if (fd_cap == fd_count) {
-        *fd_count *= 2;
+    if (*fd_cap == *fd_count) {
+        *fd_cap *= 2;
         *pfds = realloc(*pfds, sizeof(**pfds) * (*fd_cap));
     }
     (*pfds)[(*fd_count)].fd = new_fd;
@@ -152,4 +153,20 @@ void add_connection(struct pollfd *pfds[], int new_fd, int *fd_count, int *fd_ca
 void delete_connection(struct pollfd pfds[], int index, int *fd_count) {
     pfds[index] = pfds[(*fd_count)];
     (*fd_count)--;
+}
+
+void add_user(user_t *users[], int new_fd, int *user_count, int *user_cap) {
+    if (*user_cap == *user_count) {
+        *user_cap *= 2;
+        *users = realloc(*users, sizeof(**users) * (*user_cap));
+    }
+    user_t *new_user = malloc(sizeof(user_t));
+    (*users)[(*user_count)].room = 0;
+    (*users)[(*user_count)].socket = new_fd;
+    (*user_count)++;
+}
+
+void delete_user(user_t users[], int index, int *user_count) {
+    users[index] = users[(*user_count)];
+    (*user_count)--;
 }
