@@ -55,6 +55,7 @@ int main(int argc, char *argv[]) {
                     if (strcmp(buf, "exit") == 0) {
                         send_all(client_socket, "", 0);
                         fprintf(stdout, "closing client\n");
+                        free(pfds);
                         close_socket(client_socket);
                         return 1;
                     }
