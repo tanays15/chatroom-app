@@ -91,7 +91,25 @@ int main(int argc, char *argv[]) {
                             }
                         }
                         fprintf(stdout, "sender room: %d\n", sender_room);
-                        unsigned char *resp = create_packet((char *)buf);
+                        if (sender_room == 0) {
+                            char *err_string = "not in room";
+                            free(buf);
+                            buf = NULL;
+                            unsigned char *resp = create_packet(err_string);
+                            int resp_len = strlen((char *)resp);
+                            for (int j = 0; j < fd_count; ++j) {
+                                int curr_client = pfds[j].fd;
+                                if (curr_client == sender_fd) {
+                                    if (send_all(curr_client, (char *)resp, resp_len) == -1) {
+                                        fprintf(stdout, "error: couldn't send response\n");
+                                    }
+                                }
+                            }
+                            free(resp);
+                            resp = NULL;
+                            break;
+                        }
+                        unsigned char *resp = create_packet((char *)msg.data);
                         free(buf);
                         buf = NULL;
                         if (resp == NULL) {

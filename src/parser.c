@@ -22,7 +22,7 @@ msg_t parse_message(char *buffer) {
         return ERR_MSG;
     }
     new_msg.type = type;
-    while (*p == ' ' || isspace(*p)) {
+    while (isspace(*p)) {
         p++;
     }
     if (type == JOIN) {
@@ -38,6 +38,7 @@ msg_t parse_message(char *buffer) {
         if (validate == -1) {
             return ERR_MSG;
         }
+        fprintf(stdout, "msg %s\n", p);
         new_msg.data = p;
         new_msg.room = -1;
     } else {
