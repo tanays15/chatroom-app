@@ -34,6 +34,9 @@ int main(int argc, char *argv[]) {
     }
     pfds[0].fd = listener_socket;
     pfds[0].events = POLLIN;
+    users[0].socket = listener_socket;
+    users[0].room = -1;
+    user_count++;
     fd_count++;
     while (1) {
         int polled = poll(pfds, fd_count, TIMEOUT);
@@ -74,8 +77,8 @@ int main(int argc, char *argv[]) {
                         continue;
                     } else if (msg.type == JOIN) {
                         for (int i = 0; i < user_count; i++) {
-                            fprintf(stdout, "user %d joining room %d\n", sender_fd, msg.room);
                             if (users[i].socket == sender_fd) {
+                                fprintf(stdout, "user %d joining room %d\n", users[i].socket, msg.room);
                                 users[i].room = msg.room;
                                 break;
                             }
@@ -99,7 +102,7 @@ int main(int argc, char *argv[]) {
                         for (int j = 0; j < fd_count; ++j) {
                             int curr_client = pfds[j].fd;
                             int curr_room = users[j].room;
-                            fprintf(stdout, "curr room: %d\n", curr_room);
+                            fprintf(stdout, "curr socket: %d, curr room: %d\n", curr_client, curr_room);
                             if (curr_client != sender_fd && curr_client != listener_socket && curr_room == sender_room) {
                                 fprintf(stdout, "server sending: %s to client %d\n", resp, curr_client);
                                 if (send_all(curr_client, (char *)resp, resp_len) == -1) {

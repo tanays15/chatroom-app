@@ -32,7 +32,6 @@ msg_t parse_message(char *buffer) {
         }
         new_msg.room = validate;
         new_msg.data = "";
-        fprintf(stdout, "joining room: %d\n", validate);
         return new_msg;
     } else if (type == SEND) {
         validate = validate_send(p);
@@ -40,7 +39,6 @@ msg_t parse_message(char *buffer) {
             return ERR_MSG;
         }
         new_msg.data = p;
-        fprintf(stdout, "sending message: %s\n", p);
         new_msg.room = -1;
     } else {
         validate = validate_leave(p);
@@ -71,7 +69,6 @@ int validate_join(char *data) {
     if (*end_ptr != '\0' || end_ptr == data || chatroom == 0) {
         return -1;
     }
-    fprintf(stdout, "chatroom: %ld\n", chatroom);
     return chatroom;
 }
 int validate_send(char *data) {
