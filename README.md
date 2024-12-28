@@ -29,5 +29,5 @@ This project models a basic chatting app built in C using websockets to communic
 
 ## Authors
 
-Tanay Sahasrabudhe
+Tanay Sahasrabudhe  
 Github: tanays15
