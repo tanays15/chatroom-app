@@ -47,16 +47,17 @@ int main(int argc, char *argv[]) {
                         fprintf(stdout, "error: reading user input\n");
                         continue;
                     }
-                    if (strcmp(buf, "exit") == 0) {
-                        fprintf(stdout, "closing client\n");
-                        close_socket(client_socket);
-                        return 1;
-                    }
                     int buf_size = strlen(buf) - 1;
                     if (buf_size <= 0) {
                         continue;
                     }
                     buf[buf_size] = '\0';
+                    if (strcmp(buf, "exit") == 0) {
+                        send_all(client_socket, "", 0);
+                        fprintf(stdout, "closing client\n");
+                        close_socket(client_socket);
+                        return 1;
+                    }
                     // read user input into buf, now write this to the server socket
                     unsigned char *packet = create_packet(buf);
                     if (packet == NULL) {
@@ -82,7 +83,7 @@ int main(int argc, char *argv[]) {
                         fprintf(stdout, "error: bad packet recieved\n");
                         continue;
                     }
-                    fprintf(stdout, "client recieved: %s\n", serv_pack);
+                    fprintf(stdout, "recieved: %s\n", serv_pack);
                     free(serv_pack);
                     serv_pack = NULL;
                 }

@@ -8,6 +8,9 @@
 #define MAX_LEN ((2<<7) - 1)
 
 int send_all(int sockfd, const char *resp, int resp_len) {
+    if (resp_len == 0) {
+        return 0;
+    }
     int total_bytes_sent = 0;
     int bytes_sent;
     while (total_bytes_sent < resp_len) {
